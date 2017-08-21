@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+<header>
+  <meta charset="utf-8">
+  <title>Sharekey Pilot App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <!-- <link rel="stylesheet" href="/css/styles.css"> -->
+</header>
+
+<body>
+  <div>
+    <form id="signin-form">
+      <div>
+        <h3>Sign In</h3>
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="text" name="email" autofocus/>
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" name="password" autofocus/>
+      </div>
+      <div class="form-field">
+        <button>Sign In</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/libs/jquery-3.2.1.min.js"></script>
+  <script src="/js/libs/moment.js"></script>
+  <script src="/js/libs/mustache.js"></script>
+  <script src="/js/libs/deparam.js"></script>
+  <script src="/js/signin.js"></script>
+
+</body>
+
+</html>
