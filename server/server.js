@@ -231,7 +231,7 @@ io.on('connection', (socket)=> {
     }
   })
 
-  socket.on('updateData', (params, callback) => {
+  socket.on('updateDataInfo', (params, callback) => {
     var user = userRegistry.getUser(socket.id);
     if(user) {
       Data.findOneAndUpdate({
