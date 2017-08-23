@@ -1,8 +1,10 @@
 var mongoose = require('mongoose');
 var validator = require('validator');
-const jwt = require('jsonwebtoken');
-const _ = require('lodash');
-const cryptoUtils = require('./../utils/crypto-utils.js');
+
+const {Crypt} = require('./../utils/crypto-utils.js');
+const {PKI} = require('./../utils/pki-utils.js');
+
+//const cryptoUtils = require('./../utils/crypto-utils.js');
 
 var UserSchema = new mongoose.Schema({
   email: {
@@ -29,16 +31,6 @@ var UserSchema = new mongoose.Schema({
       }
     }
   },
-  // tokens: [{
-  //   access: {
-  //     type: String,
-  //     required: true
-  //   },
-  //   token: {
-  //     type: String,
-  //     required: true
-  //   }
-  // }],
   name: {
     type: String,
     trim: true,
@@ -46,54 +38,53 @@ var UserSchema = new mongoose.Schema({
   }
 });
 
-UserSchema.methods.registerNewUser = function (email, password) {
+UserSchema.methods.registerNewUser =  function (email, password, name) {
   var currentUser = this;
 
-  try{
-    return User.findOne({email}).then((user) => {
-      if(user) {
-        // console.log('Error 1');
-        return Promise.reject();
-      }
-      // console.log('Reached Promise creation');
+  return User.findOne({email}).then((user) => {
+    if(user) {
+      return Promise.reject('User already exist');
+    } else {
       return new Promise((respond, reject) => {
         // console.log('Keyset started to be generated');
-        var keyset;
         try{
-           keyset = cryptoUtils.generateNewKeySet(email, password);
-          //  console.log(keyset);
-          //  console.log(currentUser);
-           currentUser.security.verification = keyset;
+          var keySet = PKI.generateKeySet(email, password);
+          var key = Crypt.wrapPBKDF2(password, keySet.salt);
+          var encryptedData = Crypt.encryptAES(email, key, keySet.iv);
+          var signature = Crypt.signData(encryptedData);
+          currentUser.security = {
+            verification: {
+              iv: keySet.iv,
+              salt: keySet.salt,
+              verificationMac: signature
+            }
+          }
+          currentUser.save().then((result) => {
+            // console.log('User created ', email);
+            return respond(result);
+          }).catch((e)=>{
+            reject(e);
+          });
         } catch(e){
-          console.log('Error during keyset generation ', e);
+          // console.log('Error during user registration ', e);
+          reject(e.message);
         }
-        // console.log(keyset);
-        // console.log('Keyset is generated ', currentUser);
-        currentUser.save().then((result) => {
-          // console.log('User saved');
-          respond(result);
-        }).catch((e)=>{
-          // console.log('Error during saving ', e);
-          reject(e);
-        });
       });
-    })
-  } catch(e) {
-    console.log('Error 3:', e.message);
-    return  Promise.reject(e);
-  }
+    }
+  }).catch((e)=>{
+    // console.log('Error during finding creating the user', e.message);
+    return Promise.reject('Error during creating the user');
+  });
 };
 
 UserSchema.methods.verifyUserCredential = function (email, password) {
-  //var User = this;
 
-  try{
-    return User.findOne({email}).then((user) => {
+    return User.findOne({email}).then((user) =>{
       if(!user) {
         return Promise.reject();
       }
       return new Promise((response, reject) => {
-        var key = cryptoUtils.verifyUserCredentials(
+        var key = Crypt.verifyUserCredentials(
           email,
           password,
           user.security.verification.iv,
@@ -102,17 +93,15 @@ UserSchema.methods.verifyUserCredential = function (email, password) {
         );
         if(key){
           user.key = key;
-          response(user);
+          return response(user);
         }
-        reject();
+        return reject();
       });
-    })
-  } catch(e) {
-    return Promise.reject(e);
-  }
+    }).catch((e) => {
+      return Promise.reject();
+    });
+
 }
-
-
 
 var User = mongoose.model('Users', UserSchema);
 

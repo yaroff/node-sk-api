@@ -1,8 +1,10 @@
 var mongoose = require('mongoose');
 var validator = require('validator');
-const jwt = require('jsonwebtoken');
-const _ = require('lodash');
-const cryptoUtils = require('./../utils/crypto-utils.js');
+//const jwt = require('jsonwebtoken');
+//const _ = require('lodash');
+//const cryptoUtils = require('./../utils/crypto-utils.js');
+const {Crypt} = require('./../utils/crypto-utils.js');
+const {PKI} = require('./../utils/pki-utils.js');
 
 var DataSchema = new mongoose.Schema({
   _creator: {
@@ -45,13 +47,13 @@ var DataSchema = new mongoose.Schema({
   }
 });
 
-DataSchema.methods.createNewData = function (contentData, key) {
+DataSchema.methods.createNewData = async function (contentData, key) {
   var data = this;
 
   try{
-    var iv = cryptoUtils.generateIV();
-    var encryptedData = cryptoUtils.encryptAES(contentData, key, iv);
-    var mac = cryptoUtils.generateHash(encryptedData);
+    var iv = PKI.generateIV();
+    var encryptedData = Crypt.encryptAES(contentData, key, iv);
+    var mac = Crypt.signData(encryptedData);
 
     data.content.encryptedData = encryptedData;
     data.content.mac = mac;
@@ -69,8 +71,8 @@ DataSchema.methods.createNewData = function (contentData, key) {
 DataSchema.methods.unencryptData = function (key) {
   var data = this;
 
-  if(cryptoUtils.verifyMac(data.content.encryptedData, data.content.mac)){
-    return cryptoUtils.decryptAES(data.content.encryptedData, key, data.content.iv);
+  if(Crypt.verifyMac(data.content.encryptedData, data.content.mac)){
+    return Crypt.decryptAES(data.content.encryptedData, key, data.content.iv);
   }
   return false;
 }

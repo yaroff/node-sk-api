@@ -15,9 +15,13 @@ jQuery('#encrypt-form').on('submit', function (e) {
   socket.emit('addData', {
     name,
     content
-  }, function() {
-    jQuery('[name=content]').val('');
-    alert('Content was entrypted');
+  }, function(err) {
+    if(err){
+      alert(err);
+    }else{
+      jQuery('[name=encryptcontent]').val('');
+      alert('Content was entrypted');
+    }
   });
 
 });
@@ -28,7 +32,6 @@ jQuery('#decrypt-form').on('submit', function (e) {
 
   var name = jQuery('[name=decryptname]').val();
 
-
   if(name === '') {
     alert('Enter name');
     return;
@@ -36,28 +39,27 @@ jQuery('#decrypt-form').on('submit', function (e) {
 
   socket.emit('getData', {
     name
-  }, function() {
-
+  }, function(err, data) {
+    if(err){
+      alert(err);
+    }else{
+      var content = jQuery('[name=decryptcontent]').val(data);
+    }
   });
 
 });
-
-
 
 
 jQuery('#upload-form').on('submit', function (e) {
   e.preventDefault();
 
   var name = jQuery('[name=uploadname]').val();
-  //var file = jQuery('[name=uploadfile]').val();
-
   if(name === '') {
     alert('Enter name');
     return;
   };
-
   var file = jQuery('[name=uploadfile]')[0].files[0];
-  var extraParams = {foo: 'bar'};
+  //var extraParams = {foo: 'bar'};
   try{
     //delivery.send(file, extraParams);
     var stream = ss.createStream();
@@ -65,11 +67,17 @@ jQuery('#upload-form').on('submit', function (e) {
       name: name,
       fileName: file.name,
       size: file.size,
-      type: file.type});
+      type: file.type},
+      function (err) {
+        if(err){
+          alert(err);
+        } else {
+          alert('File saved');
+          jQuery('[name=uploadname]').val('');
+          jQuery('[name=uploadfile]').val('');
+        }
+      });
     ss.createBlobReadStream(file).pipe(stream);
-    alert('File saved');
-    jQuery('[name=uploadname]').val('');
-    jQuery('[name=uploadfile]').val('');
   } catch (e) {
     alert('Was not able to save file');
   }
@@ -78,7 +86,6 @@ jQuery('#upload-form').on('submit', function (e) {
 
 socket.on('pingContent', function(data) {
   var content = jQuery('[name=decryptcontent]').val(data);
-  //alert(data);
 });
 
 jQuery('#signin-form').on('submit', function (e) {
@@ -91,34 +98,93 @@ jQuery('#signin-form').on('submit', function (e) {
   socket.emit('signin', {
     email,
     password
-  }, function() {
-    alert('You signed in successfully');
-  }).catch(function (e) {
-    alert(e.message);
+  }, function(err) {
+    if(err){
+      alert('You havent sign in, ' + err);
+    } else {
+      alert('You signed in successfully');
+    }
   });
 
+});
+
+jQuery('#signup-form').on('submit', function (e) {
+  e.preventDefault();
+
+  var name = jQuery('[name=signup_name]').val();
+  var email = jQuery('[name=signup_email]').val();
+  var password = jQuery('[name=signup_password]').val();
+  var password_verify = jQuery('[name=signup_password_verify]').val();
+
+  if(password !== password_verify) {
+    alert('Password does not match');
+    return;
+  };
+
+  if(name === '' || email === '' || password === ''){
+    return alert('Enter user details');
+  }
+
+  socket.emit('signup', {
+    name,
+    email,
+    password
+  }, function(err) {
+    if(err){
+      return alert('You havent sign up, ' + err);
+    } else {
+      jQuery('[name=signup_name]').val('');
+      jQuery('[name=signup_email]').val('');
+      jQuery('[name=signup_password]').val('');
+      jQuery('[name=signup_password_verify]').val('');
+      return alert('You signed in successfully', name);
+    }
+  });
 });
 
 
   jQuery('#download-form').on('submit', function (e) {
     e.preventDefault();
-
     var name = jQuery('[name=downloadname]').val();
-
     if(name === '') {
       alert('Enter name');
       return;
     };
-
-    //var stream = ss.createStream();
-
-    // socket.emit('file.request', {name}, function() {
-    //    alert('File requested');
-    //  });
     return downloadFile(name, 'test.fil');
-
-
   });
+
+
+  jQuery('#delete-form').on('submit', function (e) {
+    e.preventDefault();
+    var name = jQuery('[name=delete_name]').val();
+    if(name === '') {
+      alert('Enter name');
+      return;
+    };
+    socket.emit('deleteData', {
+      name
+    }, function(err) {
+      if(err){
+        return alert('Data is not deleted ' + err);
+      } else {
+        jQuery('[name=delete_name]').val('');
+        return alert('Data is deleted successfully', name);
+      }
+    });
+  });
+
+jQuery('#getListOfData-form').on('submit', function (e) {
+  e.preventDefault();
+
+  socket.emit('getListOfData', {}, function (error, data) {
+    if(error){
+      console.log('Error:', error);
+    } else {
+      console.log(data);
+    }
+  });
+});
+
 
   function downloadFile(name, originalFilename) {
 

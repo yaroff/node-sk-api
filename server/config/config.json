@@ -1,12 +1,18 @@
 {
   "test": {
     "port": 3000,
-    "MONGODB_URI": "mongodb://localhost:27017/TodoAppTest",
+    "MONGODB_URI": "mongodb://localhost:27017/SkAppTest",
     "JWT_SECRET": "jfhjsfguy45389453"
   },
   "development": {
     "port": 3000,
-    "MONGODB_URI": "mongodb://localhost:27017/TodoApp",
+    "MONGODB_URI": "mongodb://localhost:27017/SkApp",
     "JWT_SECRET": "rwioue24234erar"
+  },
+  "crypto": {
+    "key_length_AES": 32,
+    "iterations_PBKDF2": 64000,
+    "salt_length_PBKDF2": 32,
+    "iv_length_AES": 32
   }
 }

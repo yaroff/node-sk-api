@@ -10,14 +10,150 @@
 
 <body>
   <div>
-    <h3>Welcome to Pilot</h3>
+    <form id="signup-form">
+      <div>
+        <h3>Sign Up</h3>
+      </div>
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" name="signup_name" />
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="text" name="signup_email" />
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" name="signup_password" />
+      </div>
+      <div class="form-field">
+        <label>Reenter Password</label>
+        <input type="password" name="signup_password_verify" />
+      </div>
+      <div class="form-field">
+        <button>Sign Up</button>
+      </div>
+    </form>
   </div>
   <div>
-    <a href="signup.html">Sign Up</a>
+    <form id="signin-form">
+      <div>
+        <h3>Sign In</h3>
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="text" name="email" autofocus/>
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" name="password" />
+      </div>
+      <div class="form-field">
+        <button>Sign In</button>
+      </div>
+    </form>
   </div>
   <div>
-    <a href="signin.html">Sign In</a>
+    <form id="encrypt-form">
+      <div>
+        <h3>Encrypt</h3>
+      </div>
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" name="encryptname" />
+      </div>
+      <div class="form-field">
+        <label>Content</label>
+        <input type="text" name="encryptcontent" />
+      </div>
+      <div class="form-field">
+        <button>Encrypt</button>
+      </div>
+    </form>
   </div>
+  <div>
+    <form id="decrypt-form">
+      <div>
+        <h3>Decrypt</h3>
+      </div>
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" name="decryptname" />
+      </div>
+      <div class="form-field">
+        <label>Content</label>
+        <input type="text" name="decryptcontent" />
+      </div>
+      <div class="form-field">
+        <button>Decrypt</button>
+      </div>
+    </form>
+  </div>
+  <div>
+    <form id="upload-form">
+      <div>
+        <h3>File upload</h3>
+      </div>
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" name="uploadname" />
+      </div>
+      <div class="form-field">
+        <label>File</label>
+        <input type="file" name="uploadfile"/>
+      </div>
+      <div class="form-field">
+        <button>Encrypt</button>
+      </div>
+    </form>
+  </div>
+  <div>
+    <form id="download-form">
+      <div>
+        <h3>File download</h3>
+      </div>
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" name="downloadname" />
+      </div>
+      <div class="form-field">
+        <button>Decrypt</button>
+      </div>
+    </form>
+  </div>
+  <div>
+    <form id="delete-form">
+      <div>
+        <h3>Delete Data</h3>
+      </div>
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" name="delete_name" />
+      </div>
+      <div class="form-field">
+        <button>Delete</button>
+      </div>
+    </form>
+  </div>
+  <div>
+    <form id="getListOfData-form">
+      <div>
+        <h3>Get List of data</h3>
+      </div>
+      <div class="form-field">
+        <button>Get List</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/libs/jquery-3.2.1.min.js"></script>
+  <script src="/js/libs/moment.js"></script>
+  <script src="/js/libs/mustache.js"></script>
+  <script src="/js/libs/deparam.js"></script>
+  <script src="/js/libs/socket.io-stream.js"></script>
+  <script src="/js/libs/delivery.js"></script>
+  <script src="/js/content.js"></script>
 
 </body>
 
