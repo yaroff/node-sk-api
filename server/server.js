@@ -197,6 +197,7 @@ io.on('connection', (socket)=> {
       Data.find({_creator: user.userId}).then((doc) => {
         doc.forEach((d) => {
           dataRegistry.push({
+            id: d._id.toHexString(),
             name: d.content.name,
             fileName: d.content.fileName,
             path: d.content.path,
@@ -216,7 +217,9 @@ io.on('connection', (socket)=> {
   socket.on('deleteData', (params, callback) => {
     var user = userRegistry.getUser(socket.id);
     if(user) {
-      Data.deleteOne({'content.name': params.name, _creator: user.userId}).then((doc) => {
+      Data.deleteOne({
+        'content.name': params.name,
+        _creator: user.userId}).then((doc) => {
         if(doc.result.n > 0) {
           return callback();
         } else {
@@ -228,11 +231,66 @@ io.on('connection', (socket)=> {
     }
   })
 
+  socket.on('updateData', (params, callback) => {
+    var user = userRegistry.getUser(socket.id);
+    if(user) {
+      Data.findOneAndUpdate({
+        _id: params.id,
+        _creator: user.userId
+      }, {
+        'content.name': params.name,
+        'content.path': params.path,
+        'content.fileName': params.fileName
+      }, {
+        returnNewDocument: true
+      }).then((d) => {
+        if(d) {
+          return callback(undefined, {
+            id: d._id.toHexString(),
+            name: d.content.name,
+            fileName: d.content.fileName,
+            path: d.content.path,
+            size: d.content.size,
+            contentType: d.content.contentType
+          });
+        } else {
+          callback('Unable to update requested data');
+        }
+      })
+    } else {
+      return callback('Unauthorised request');
+    }
+  });
+
+  socket.on('getDataInfo', (params, callback) => {
+    var user = userRegistry.getUser(socket.id);
+    if(user){
+      Data.findOne({
+        //_id: params.id,
+        'content.name': params.name
+      }).then((d) => {
+        if(d){
+          return callback(undefined, {
+            id: d._id.toHexString(),
+            name: d.content.name,
+            fileName: d.content.fileName,
+            path: d.content.path,
+            size: d.content.size,
+            contentType: d.content.contentType
+          })
+        } else {
+          callback('Unable to get data info');
+        }
+      })
+    }else{
+      return callback('Unauthorised request');
+    }
+  });
+
   socket.on('disconnect', () => {
     var user = userRegistry.removeUser(socket.id);
   });
 });
-
 
 server.listen(port, () => {
   // console.log(`Server started at port ${port}`);
